@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is GMO the Right Strain for Your Evening?</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+</style>
+</head>
+<body>
+
+<div id="gmo-quiz" style="max-width:520px;margin:0 auto;padding:24px 16px;box-sizing:border-box;">
+
+  <div id="quiz-container" style="background:#F4F7F5;border-radius:12px;padding:28px 24px;position:relative;overflow:hidden;">
+
+    <div id="quiz-header" style="text-align:center;margin-bottom:20px;">
+      <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:#1B3A2F;text-transform:uppercase;margin:0 0 6px 0;">Quick Quiz</p>
+      <h2 style="font-size:22px;font-weight:700;color:#1B3A2F;margin:0 0 4px 0;line-height:1.3;">Is GMO the Right Strain for Your Evening?</h2>
+      <p style="font-size:14px;color:#5C6B60;margin:0;">Three questions. Ten seconds. One answer.</p>
+    </div>
+
+    <div id="progress-bar" style="width:100%;height:4px;background:#D8DED8;border-radius:2px;margin-bottom:24px;overflow:hidden;">
+      <div id="progress-fill" style="width:0%;height:100%;background:#1B3A2F;border-radius:2px;transition:width 0.4s ease;"></div>
+    </div>
+
+    <div id="question-area"></div>
+
+    <div id="result-area" style="display:none;text-align:center;"></div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var questions = [
+    {
+      q: "What does your evening look like?",
+      options: [
+        { text: "Couch, snacks, and a movie", icon: "\uD83C\uDFAC", value: 3 },
+        { text: "Heading out with friends", icon: "\uD83C\uDF78", value: 0 },
+        { text: "Winding down, nothing planned", icon: "\uD83D\uDE0C", value: 2 }
+      ]
+    },
+    {
+      q: "How do you feel about funky, savory flavors?",
+      options: [
+        { text: "Garlic and diesel? Sign me up", icon: "\uD83E\uDDC4", value: 3 },
+        { text: "I can work with it", icon: "\uD83E\uDD37", value: 2 },
+        { text: "I prefer fruity or sweet", icon: "\uD83C\uDF53", value: 1 }
+      ]
+    },
+    {
+      q: "How familiar are you with potent flower?",
+      options: [
+        { text: "Very. I know my way around", icon: "\u2B50", value: 3 },
+        { text: "Somewhere in the middle", icon: "\uD83D\uDC4D", value: 2 },
+        { text: "Pretty new to it", icon: "\uD83C\uDF31", value: 1 }
+      ]
+    }
+  ];
+
+  var results = [
+    {
+      min: 0, max: 4,
+      title: "Maybe Save GMO for Later",
+      emoji: "\uD83D\uDCA4",
+      body: "GMO is an evening-only, couch-lock indica. If you're heading out or newer to potent flower, something lighter might be a better starting point.",
+      cta: "Browse Mood's full flower collection",
+      url: "https://mood.com/shop/product-category/flower"
+    },
+    {
+      min: 5, max: 7,
+      title: "GMO Could Work for You",
+      emoji: "\uD83D\uDC4D",
+      body: "You've got the right vibe for GMO, just take it easy with your first session. Start with a puff or two and let it settle in before reaching for more.",
+      cta: "Check out Dark Rainbow (GMO lineage)",
+      url: "https://mood.com/product/dark-rainbow"
+    },
+    {
+      min: 8, max: 9,
+      title: "GMO Was Made for This",
+      emoji: "\uD83D\uDD25",
+      body: "Couch locked with garlic funk and nowhere to be? That's the GMO sweet spot. You're going to enjoy the ride from giggly onset to full relaxation.",
+      cta: "Grab Dark Rainbow, Mood's GMO-lineage flower",
+      url: "https://mood.com/product/dark-rainbow"
+    }
+  ];
+
+  var currentQ = 0;
+  var score = 0;
+  var answers = [];
+
+  function renderQuestion() {
+    var q = questions[currentQ];
+    var pct = ((currentQ) / questions.length) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+
+    var html = '<p style="font-size:15px;font-weight:600;color:#1B3A2F;margin:0 0 16px 0;">' + q.q + '</p>';
+
+    for (var i = 0; i < q.options.length; i++) {
+      var opt = q.options[i];
+      html += '<button onclick="window._gmoQuizSelect(' + i + ')" style="'
+        + 'display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;margin-bottom:10px;'
+        + 'background:#FFFFFF;border:2px solid #D8DED8;border-radius:12px;cursor:pointer;'
+        + 'font-size:15px;color:#1B3A2F;font-family:inherit;text-align:left;'
+        + 'transition:border-color 0.2s ease, background 0.2s ease;box-sizing:border-box;'
+        + '" onmouseover="this.style.borderColor=\'#1B3A2F\';this.style.background=\'#EEF2EE\'" '
+        + 'onmouseout="this.style.borderColor=\'#D8DED8\';this.style.background=\'#FFFFFF\'">'
+        + '<span style="font-size:22px;line-height:1;flex-shrink:0;">' + opt.icon + '</span>'
+        + '<span>' + opt.text + '</span>'
+        + '</button>';
+    }
+
+    document.getElementById('question-area').innerHTML = html;
+    document.getElementById('question-area').style.display = 'block';
+    document.getElementById('result-area').style.display = 'none';
+  }
+
+  window._gmoQuizSelect = function(idx) {
+    var opt = questions[currentQ].options[idx];
+    score += opt.value;
+    answers.push(idx);
+    currentQ++;
+
+    if (currentQ < questions.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  };
+
+  function showResult() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('question-area').style.display = 'none';
+
+    var result = results[0];
+    for (var i = 0; i < results.length; i++) {
+      if (score >= results[i].min && score <= results[i].max) {
+        result = results[i];
+      }
+    }
+
+    var html = '<div style="padding:8px 0;">'
+      + '<div style="font-size:48px;margin-bottom:12px;">' + result.emoji + '</div>'
+      + '<h3 style="font-size:20px;font-weight:700;color:#1B3A2F;margin:0 0 10px 0;">' + result.title + '</h3>'
+      + '<p style="font-size:14px;color:#5C6B60;line-height:1.6;margin:0 0 20px 0;">' + result.body + '</p>'
+      + '<a href="' + result.url + '" target="_blank" rel="noopener" style="'
+        + 'display:inline-block;padding:14px 28px;background:#1B3A2F;color:#FFFFFF;'
+        + 'font-size:14px;font-weight:600;text-decoration:none;border-radius:12px;'
+        + 'transition:background 0.2s ease;'
+        + '" onmouseover="this.style.background=\'#24503F\'" onmouseout="this.style.background=\'#1B3A2F\'">'
+        + result.cta
+      + '</a>'
+      + '<div style="margin-top:16px;">'
+        + '<button onclick="window._gmoQuizReset()" style="'
+          + 'background:none;border:none;color:#5C6B60;font-size:13px;cursor:pointer;'
+          + 'font-family:inherit;text-decoration:underline;padding:4px;'
+          + '">Retake quiz</button>'
+      + '</div>'
+      + '</div>';
+
+    document.getElementById('result-area').innerHTML = html;
+    document.getElementById('result-area').style.display = 'block';
+  }
+
+  window._gmoQuizReset = function() {
+    currentQ = 0;
+    score = 0;
+    answers = [];
+    renderQuestion();
+  };
+
+  renderQuestion();
+})();
+</script>
+
+</body>
+</html>
